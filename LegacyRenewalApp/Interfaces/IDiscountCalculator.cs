@@ -3,11 +3,10 @@ namespace LegacyRenewalApp;
 public interface IDiscountCalculator
 {
     decimal CalculateDiscount(
-        int customerId,
-        string planCode,
+        Customer customer,
+        SubscriptionPlan plan,
         int seatCount,
-        string paymentMethod,
-        bool includePremiumSupport,
+        decimal baseAmount,
         bool useLoyaltyPoints
         );
 }

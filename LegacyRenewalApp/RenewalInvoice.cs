@@ -1,31 +1,27 @@
 using System;
 
-namespace LegacyRenewalApp
+public class RenewalInvoice
 {
-    public class RenewalInvoice
-    {
-        private int customerId;
-        private string planCode;
-        private int seatCount;
-        private string paymentMethod;
-        
-        public string InvoiceNumber { get; set; } = string.Empty;
-        public string CustomerName { get; set; } = string.Empty;
-        public string PlanCode { get; set; } = string.Empty;
-        public string PaymentMethod { get; set; } = string.Empty;
-        public int SeatCount { get; set; }
-        public decimal BaseAmount { get; set; }
-        public decimal DiscountAmount { get; set; }
-        public decimal SupportFee { get; set; }
-        public decimal PaymentFee { get; set; }
-        public decimal TaxAmount { get; set; }
-        public decimal FinalAmount { get; set; }
-        public string Notes { get; set; } = string.Empty;
-        public DateTime GeneratedAt { get; set; }
+    public int CustomerId { get; set; }
+    
+    public string CustomerName { get; set; }
+    
+    public int InvoiceNumber { get; set; }
+    
+    public decimal FinalAmount { get; set; }
+    public string PlanCode { get; set; } = string.Empty;
 
-        public override string ToString()
-        {
-            return $"InvoiceNumber={InvoiceNumber}, Customer={CustomerName}, Plan={PlanCode}, Seats={SeatCount}, FinalAmount={FinalAmount:F2}, Notes={Notes}";
-        }
+    public decimal BaseAmount { get; set; }
+    public decimal Discount { get; set; }
+    public decimal SupportFee { get; set; }
+    public decimal PaymentFee { get; set; }
+    public decimal Tax { get; set; }
+    public decimal TotalAmount { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+
+    public override string ToString()
+    {
+        return $"CustomerId={CustomerId}, Plan={PlanCode}, Total={TotalAmount:F2}";
     }
 }

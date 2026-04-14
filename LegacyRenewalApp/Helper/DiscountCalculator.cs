@@ -2,90 +2,37 @@ namespace LegacyRenewalApp.Helper;
 
 public class DiscountCalculator : IDiscountCalculator
 {
-    public decimal CalculateDiscount(
-        int customerId,
-        string planCode,
-        int seatCount,
-        string paymentMethod,
-        bool includePremiumSupport,
-        bool useLoyaltyPoints
-    )
+    public decimal CalculateDiscount(Customer customer, SubscriptionPlan plan, int seatCount, decimal baseAmount,
+        bool useLoyaltyPoints)
     {
-        string normalizedPlanCode = planCode.Trim().ToUpperInvariant();
-        string normalizedPaymentMethod = paymentMethod.Trim().ToUpperInvariant();
+        decimal discount = 0m;
 
-        var customerRepository = new CustomerRepository();
-        var planRepository = new SubscriptionPlanRepository();
-
-        var customer = customerRepository.GetById(customerId);
-        var plan = planRepository.GetByCode(normalizedPlanCode);
-
-        decimal baseAmount = (plan.MonthlyPricePerSeat * seatCount * 12m) + plan.SetupFee;
-        decimal discountAmount = 0m;
-        string notes = string.Empty;
-
-        if (customer.Segment == "Silver")
+        switch (customer.Segment)
         {
-            discountAmount += baseAmount * 0.05m;
-            notes += "silver discount; ";
-        }
-        else if (customer.Segment == "Gold")
-        {
-            discountAmount += baseAmount * 0.10m;
-            notes += "gold discount; ";
-        }
-        else if (customer.Segment == "Platinum")
-        {
-            discountAmount += baseAmount * 0.15m;
-            notes += "platinum discount; ";
-        }
-        else if (customer.Segment == "Education" && plan.IsEducationEligible)
-        {
-            discountAmount += baseAmount * 0.20m;
-            notes += "education discount; ";
+            case "Silver": discount += baseAmount * 0.05m; break;
+            case "Gold": discount += baseAmount * 0.10m; break;
+            case "Platinium": discount += baseAmount * 0.15m; break;
+            case "Education" when plan.IsEducationEligible: discount += baseAmount * 0.20m; break;
         }
 
         if (customer.YearsWithCompany >= 5)
-        {
-            discountAmount += baseAmount * 0.07m;
-            notes += "long-term loyalty discount; ";
-        }
+            discount += baseAmount * 0.07m;
         else if (customer.YearsWithCompany >= 2)
-        {
-            discountAmount += baseAmount * 0.03m;
-            notes += "basic loyalty discount; ";
-        }
+            discount += baseAmount * 0.03m;
 
         if (seatCount >= 50)
-        {
-            discountAmount += baseAmount * 0.12m;
-            notes += "large team discount; ";
-        }
+            discount += baseAmount * 0.12m;
         else if (seatCount >= 20)
-        {
-            discountAmount += baseAmount * 0.08m;
-            notes += "medium team discount; ";
-        }
+            discount += baseAmount * 0.08m;
         else if (seatCount >= 10)
-        {
-            discountAmount += baseAmount * 0.04m;
-            notes += "small team discount; ";
-        }
+            discount += baseAmount * 0.04m;
 
         if (useLoyaltyPoints && customer.LoyaltyPoints > 0)
         {
-            int pointsToUse = customer.LoyaltyPoints > 200 ? 200 : customer.LoyaltyPoints;
-            discountAmount += pointsToUse;
-            notes += $"loyalty points used: {pointsToUse}; ";
+            int points = customer.LoyaltyPoints > 200 ? 200 : customer.LoyaltyPoints;
+            discount += points;
         }
 
-        decimal subtotalAfterDiscount = baseAmount - discountAmount;
-        if (subtotalAfterDiscount < 300m)
-        {
-            subtotalAfterDiscount = 300m;
-            notes += "minimum discounted subtotal applied; ";
-        }
-
-        return subtotalAfterDiscount;
+        return discount;
     }
 }
